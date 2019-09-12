@@ -20,6 +20,9 @@ parser.add_option("-q", "--dryrun", dest = "dry_run",
 parser.add_option("-s", "--small", dest = "small_run",
                   default=False,
                   help='Use smaller variables and systematics list to test computing.')
+parser.add_option("-p", dest = "just_plot",
+                  default=False, action="store_true",
+                  help='Do not produce datacards to save time.')
 
 (options,args) = parser.parse_args()
 
@@ -28,13 +31,13 @@ cfg = __import__("htt_plot.channels_configs.{}".format(options.cfg_name), fromli
 # variables
 
 if options.small_run:
-    variables = [cfg.variables[0]]
+    plot_variables = ['mt_tot']
     datacards_variables = [cfg.datacards_variables[0]]
 else:
-    variables = cfg.variables
+    plot_variables = cfg.variables
     datacards_variables = cfg.datacards_variables
 
-variables = set(variables + datacards_variables)
+variables = set(plot_variables + datacards_variables)
     
 # output
 output_dir = '_'.join([options.output_dir, cfg.channel])
@@ -79,16 +82,16 @@ l2_FakeFactorApplication_Region_genuinetauMC_cut_DY = l2_FakeFactorApplication_R
 
 #### cuts+weights
 signal_region = cut_signal * cfg.weights['weight']
-signal_region_Embedded = signal_region * cfg.weights['embed']
-signal_region_MC = signal_region_MC * cfg.weights['weight'] * cfg.weights['MC']
+signal_region_Embedded = cut_signal * cfg.weights['embed']
+signal_region_MC = signal_region_MC * cfg.weights['weight'] #* cfg.weights['MC']
 signal_region_MC_nofakes_DY = signal_region_MC_nofakes_DY * cfg.weights['weight'] * cfg.weights['MC']# * cfg.weights['DY'] weight already in base weight
 signal_region_MC_nofakes_TT = signal_region_MC_nofakes_cut * cfg.weights['weight'] * cfg.weights['MC']# * cfg.weights['TT'] same
-signal_region_MC_nofakes_Embedded = signal_region_MC_nofakes_cut * cfg.weights['weight'] * cfg.weights['MC'] * cfg.weights['embed']
+signal_region_MC_nofakes_Embedded = signal_region_MC_nofakes_cut * cfg.weights['embed']
 signal_region_MC_nofakes = signal_region_MC_nofakes_cut * cfg.weights['weight'] * cfg.weights['MC']
 l1_FakeFactorApplication_Region = l1_FakeFactorApplication_Region_cut * cfg.weights['l1_fake'] * cfg.weights['weight']
 l2_FakeFactorApplication_Region = l2_FakeFactorApplication_Region_cut * cfg.weights['l2_fake'] * cfg.weights['weight']
-l1_FakeFactorApplication_Region_genuinetauMC_Embedded = l1_FakeFactorApplication_Region_genuinetauMC_cut * cfg.weights['weight'] * cfg.weights['embed'] * cfg.weights['l1_fake']
-l2_FakeFactorApplication_Region_genuinetauMC_Embedded = l2_FakeFactorApplication_Region_genuinetauMC_cut * cfg.weights['weight'] * cfg.weights['embed'] * cfg.weights['l2_fake']
+l1_FakeFactorApplication_Region_genuinetauMC_Embedded = l1_FakeFactorApplication_Region_genuinetauMC_cut * cfg.weights['embed'] * cfg.weights['l1_fake']
+l2_FakeFactorApplication_Region_genuinetauMC_Embedded = l2_FakeFactorApplication_Region_genuinetauMC_cut * cfg.weights['embed'] * cfg.weights['l2_fake']
 l1_FakeFactorApplication_Region_genuinetauMC = l1_FakeFactorApplication_Region_genuinetauMC_cut * cfg.weights['weight'] * cfg.weights['l1_fake']
 l2_FakeFactorApplication_Region_genuinetauMC = l2_FakeFactorApplication_Region_genuinetauMC_cut * cfg.weights['weight'] * cfg.weights['l2_fake']
 l1_FakeFactorApplication_Region_genuinetauMC_DY = l1_FakeFactorApplication_Region_genuinetauMC_cut_DY * cfg.weights['weight'] * cfg.weights['l1_fake']# * cfg.weights['DY'] 
@@ -504,12 +507,12 @@ processes = []
 
 def write_plots(plotter, variable, output_dir):
     plotter.draw(variable, 'Number of events')
-    plotter.write('{}/{}.png'.format(output_dir, variable))
-    plotter.write('{}/{}.tex'.format(output_dir, variable))
-    plotter.write('{}/{}.root'.format(output_dir, variable))
+    plotter.write('{}/{}/{}.png'.format(output_dir, category, variable))
+    plotter.write('{}/{}/{}.tex'.format(output_dir, category, variable))
+    plotter.write('{}/{}/{}.root'.format(output_dir, category, variable))
     print plotter.plot
     
-for variable in variables:
+for variable in plot_variables:
     processes.append(
         delayed(write_plots)(
             delayed(Plotter)(components[variable], cfg.datasets.data_lumi),
@@ -517,23 +520,26 @@ for variable in variables:
             output_dir
             )
         )
-    
-for variable in datacards_variables:
-    processes.append(
-        delayed(make_datacards)(
-            output_dir,
-            cfg.channel,
-            variable,
-            dc_comps[variable],
-            category = category,
-            systematics = ['nominal']+sys_dict.keys()
+
+if not options.just_plot:
+    for variable in datacards_variables:
+        processes.append(
+            delayed(make_datacards)(
+                output_dir,
+                cfg.channel,
+                variable,
+                dc_comps[variable],
+                category = category,
+                systematics = ['nominal']+sys_dict.keys()
+            )
         )
-    )
 
 import os
 # os.system('rm -rf {}'.format(output_dir))
 if not os.path.exists(output_dir):
     os.system('mkdir -p {}'.format(output_dir))
+if not os.path.exists('{}/{}'.format(output_dir,category)):
+    os.system('mkdir -p {}/{}'.format(output_dir,category))
         
 visualize(*processes)
 if not options.dry_run:

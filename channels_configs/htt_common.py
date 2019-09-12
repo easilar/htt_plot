@@ -89,7 +89,8 @@ weights = Cuts(
     TT = 'weight_top',
     TT_pTrweigh_up = '(1+(weight_top-1)*2)/(weight_top)',
     TT_pTrweigh_down = '(1+(weight_top-1)*0)/(weight_top)',
-    embed = 'weight_embed_DoubleMuonHLT_eff * weight_embed_muonID_eff_l1 * weight_embed_muonID_eff_l2 * weight_embed_DoubleTauHLT_eff_l1 * weight_embed_DoubleTauHLT_eff_l2 * weight_embed_track_l1 * weight_embed_track_l2',
+    embed = 'weight_generator * weight_embed_DoubleMuonHLT_eff * weight_embed_muonID_eff_l1 * weight_embed_muonID_eff_l2 * weight_embed_track_l1 * weight_embed_track_l2 * (0.18321*(l1_pt>=30 && l1_pt<35) + 0.53906*(l1_pt>=35 && l1_pt<40) + 0.63658*(l1_pt>=40 && l1_pt<45) + 0.73152*(l1_pt>=45 && l1_pt<50) + 0.79002*(l1_pt>=50 && l1_pt<60) + 0.84666*(l1_pt>=60 && l1_pt<80) + 0.84919*(l1_pt>=80 && l1_pt<100) + 0.86819*(l1_pt>=100 && l1_pt<150) + 0.88206*(l1_pt>=150 && l1_pt<200) + (l1_pt>=200)) * (0.18321*(l2_pt>=30 && l2_pt<35) + 0.53906*(l2_pt>=35 && l2_pt<40) + 0.63658*(l2_pt>=40 && l2_pt<45) + 0.73152*(l2_pt>=45 && l2_pt<50) + 0.79002*(l2_pt>=50 && l2_pt<60) + 0.84666*(l2_pt>=60 && l2_pt<80) + 0.84919*(l2_pt>=80 && l2_pt<100) + 0.86819*(l2_pt>=100 && l2_pt<150) + 0.88206*(l2_pt>=150 && l2_pt<200) + (l2_pt>=200))',
+    # embed = 'weight_embed_DoubleMuonHLT_eff * weight_embed_muonID_eff_l1 * weight_embed_muonID_eff_l2 * weight_embed_DoubleTauHLT_eff_l1 * weight_embed_DoubleTauHLT_eff_l2 * weight_embed_track_l1 * weight_embed_track_l2',
     embed_track_1prong_up = 'weight_embed_DoubleMuonHLT_eff * weight_embed_muonID_eff_l1 * weight_embed_muonID_eff_l2 * weight_embed_DoubleTauHLT_eff_l1 * weight_embed_DoubleTauHLT_eff_l2 * ((l1_decay_mode==0)*0.983+(l1_decay_mode==1)*0.983*1.065+(l1_decay_mode==10)*0.975*0.975*0.975) * ((l2_decay_mode==0)*0.983+(l2_decay_mode==1)*0.983*1.065+(l2_decay_mode==10)*0.975*0.975*0.975)',
     embed_track_1prong_down = 'weight_embed_DoubleMuonHLT_eff * weight_embed_muonID_eff_l1 * weight_embed_muonID_eff_l2 * weight_embed_DoubleTauHLT_eff_l1 * weight_embed_DoubleTauHLT_eff_l2 * ((l1_decay_mode==0)*0.967+(l1_decay_mode==1)*0.967*1.038+(l1_decay_mode==10)*0.975*0.975*0.975) * ((l2_decay_mode==0)*0.967+(l2_decay_mode==1)*0.967*1.038+(l2_decay_mode==10)*0.975*0.975*0.975)',
     embed_track_3prong_up = 'weight_embed_DoubleMuonHLT_eff * weight_embed_muonID_eff_l1 * weight_embed_muonID_eff_l2 * weight_embed_DoubleTauHLT_eff_l1 * weight_embed_DoubleTauHLT_eff_l2 * ((l1_decay_mode==0)*0.975+(l1_decay_mode==1)*0.975*1.051+(l1_decay_mode==10)*0.983*0.983*0.983) * ((l2_decay_mode==0)*0.975+(l2_decay_mode==1)*0.975*1.051+(l2_decay_mode==10)*0.983*0.983*0.983)',
@@ -97,3 +98,5 @@ weights = Cuts(
     l1_fake = 'l1_fakeweight*0.5',
     l2_fake = 'l2_fakeweight*0.5'
     )
+
+
